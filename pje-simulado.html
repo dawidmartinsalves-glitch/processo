@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PJe Simulado – Júri UNIFIC</title>
+<style>
+:root{--blue:#1a3a5c;--blue2:#2056a0;--light:#e8f0fb;--border:#b0c4de;--green:#2e7d32;--gray:#f4f6f9;--red:#c62828;--orange:#e65100;--purple:#6a1b9a;--teal:#00695c;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#dce6f5;color:#1a1a2e;min-height:100vh;-webkit-text-size-adjust:100%;}
+
+/* HEADER */
+#header{background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;padding:0 12px;display:flex;align-items:center;gap:10px;height:52px;position:fixed;top:0;left:0;right:0;z-index:300;box-shadow:0 2px 8px #0005;}
+.logo-box{background:#fff;border-radius:5px;padding:3px 8px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.logo-box span{color:var(--blue);font-weight:900;font-size:1rem;letter-spacing:1px;}
+.logo-box small{color:var(--blue2);font-size:.55rem;line-height:1;}
+#header h1{font-size:.72rem;font-weight:600;flex:1;line-height:1.4;}
+.sim-badge{background:#ffd600;color:#1a1a2e;font-size:.58rem;font-weight:800;padding:3px 7px;border-radius:20px;flex-shrink:0;}
+
+/* BOTTOM NAV */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:300;box-shadow:0 -2px 10px #0002;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;font-size:.62rem;font-weight:600;color:#888;border:none;background:none;cursor:pointer;gap:3px;border-top:3px solid transparent;transition:color .15s,border-color .15s;}
+.nav-btn .ni{font-size:1.3rem;line-height:1;}
+.nav-btn.active{color:var(--blue2);border-top-color:var(--blue2);background:var(--light);}
+
+/* SCROLL AREA */
+#app{padding-top:52px;padding-bottom:calc(60px + env(safe-area-inset-bottom));min-height:100vh;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── AUTOS ── */
+.proc-banner{background:var(--blue);color:#fff;padding:10px 14px;font-size:.72rem;line-height:1.9;}
+.proc-banner .pnum{font-family:monospace;color:#ffd600;font-size:.78rem;font-weight:700;}
+.proc-banner .psub{color:#aac4ff;font-size:.64rem;}
+.doc-list{padding:10px;display:flex;flex-direction:column;gap:8px;}
+.doc-card{background:#fff;border-radius:10px;box-shadow:0 1px 5px #0001;display:flex;align-items:center;gap:12px;padding:13px 14px;border:none;width:100%;text-align:left;border-left:4px solid transparent;cursor:pointer;}
+.doc-card:active{background:var(--light);}
+.doc-card .di{font-size:1.8rem;flex-shrink:0;}
+.doc-card .dinfo{flex:1;min-width:0;}
+.doc-card .dtitle{font-size:.83rem;font-weight:700;color:var(--blue);}
+.doc-card .dsub{font-size:.69rem;color:#666;margin-top:2px;}
+.doc-card .ddate{font-size:.64rem;color:#999;margin-top:2px;}
+.doc-card .dfl{font-size:.64rem;color:#bbb;flex-shrink:0;}
+.doc-card.capa{border-left-color:var(--green);}
+.doc-card.sentenca{border-left-color:var(--blue2);}
+.doc-card.intimacao{border-left-color:var(--orange);}
+.doc-card.certidao{border-left-color:var(--purple);}
+
+/* ── DOCVIEW ── */
+#screen-docview{background:#b0b8c8;}
+.docview-bar{background:var(--blue);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 12px;position:sticky;top:52px;z-index:100;}
+.back-btn{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:7px 11px;font-size:.8rem;cursor:pointer;font-weight:700;flex-shrink:0;}
+.dv-title{flex:1;font-size:.76rem;font-weight:600;line-height:1.3;color:#fff;}
+.print-btn{background:#ffd600;color:#1a1a2e;border:none;border-radius:6px;padding:7px 11px;font-size:.78rem;cursor:pointer;font-weight:700;flex-shrink:0;}
+.paper-wrap{padding:10px;}
+.paper{background:#fff;width:100%;max-width:720px;margin:0 auto;padding:26px 20px 38px;box-shadow:0 2px 12px #0003;font-family:'Times New Roman',Times,serif;font-size:11pt;line-height:1.85;color:#111;position:relative;border-radius:2px;}
+.trib-header{text-align:center;font-weight:bold;font-size:9.5pt;line-height:1.7;margin-bottom:20px;text-transform:uppercase;}
+.trib-logo{text-align:center;margin-bottom:8px;font-size:2rem;}
+.doc-h{text-align:center;font-size:13pt;font-weight:bold;margin:16px 0 14px;text-transform:uppercase;letter-spacing:1px;}
+.proc-info p{margin:3px 0;font-size:10pt;}
+.paper p{text-align:justify;margin-bottom:10px;text-indent:1.2cm;}
+.paper p.ni{text-indent:0;}
+.sec{font-weight:bold;margin-top:14px;margin-bottom:4px;text-indent:0!important;text-align:left;}
+.assinatura{margin-top:44px;text-align:center;}
+.assinatura .linha{border-top:1px solid #333;width:240px;margin:0 auto 6px;}
+.assinatura p{text-indent:0;text-align:center;font-weight:bold;margin:2px 0;font-size:10pt;}
+.assinatura small{font-size:9pt;}
+.campo{display:inline-block;border-bottom:1px solid #555;min-width:90px;}
+.rodape{margin-top:28px;font-size:8pt;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:5px;}
+.ptable{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9.5pt;}
+.ptable th{background:var(--blue);color:#fff;padding:6px 8px;text-align:center;}
+.ptable td{padding:5px 8px;border:1px solid #ccc;vertical-align:top;}
+.ptable tr:nth-child(even) td{background:#f4f6f9;}
+
+/* ── CASO ── */
+#screen-caso{padding:10px;}
+.caso-card{background:#fff;border-radius:10px;padding:15px;margin-bottom:10px;box-shadow:0 1px 5px #0001;}
+.caso-card h3{color:var(--blue);margin-bottom:10px;font-size:.87rem;border-bottom:2px solid var(--light);padding-bottom:6px;}
+.caso-card p{font-size:.81rem;line-height:1.7;color:#333;margin-bottom:8px;}
+.caso-card p:last-child{margin-bottom:0;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.info-item .lbl{font-weight:700;color:var(--blue2);font-size:.65rem;text-transform:uppercase;display:block;margin-bottom:2px;}
+.info-item .val{font-size:.79rem;color:#222;}
+.art-box{background:var(--gray);border-left:4px solid var(--blue2);padding:10px 13px;border-radius:0 6px 6px 0;font-size:.77rem;font-style:italic;color:#444;margin-top:8px;line-height:1.6;}
+
+/* ── PARTES ── */
+#screen-partes{padding:10px;}
+.pcard{background:#fff;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 5px #0001;overflow:hidden;}
+.pcard-hdr{color:#fff;padding:12px 14px;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;border:none;width:100%;text-align:left;cursor:pointer;}
+.pcard-hdr .hl{display:flex;align-items:center;gap:8px;}
+.chev{font-size:.72rem;transition:transform .25s;display:inline-block;}
+.pcard-body{overflow:hidden;max-height:0;transition:max-height .3s ease;}
+.pcard-body.open{max-height:3000px;}
+.person{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #f0f0f0;}
+.person:last-child{border-bottom:none;}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;}
+.pname{font-size:.82rem;font-weight:600;color:#222;display:block;}
+.prole{font-size:.64rem;color:#888;display:block;}
+
+@media(min-width:600px){
+  .paper{padding:46px 52px 58px;font-size:12pt;}
+  .trib-header{font-size:10.5pt;}
+  .doc-h{font-size:15pt;}
+  .info-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+@media print{
+  #header,#bottom-nav,.docview-bar{display:none!important;}
+  #app{padding:0!important;}
+  .screen{display:none!important;}
+  #screen-docview{display:block!important;}
+  .paper-wrap{padding:0;background:none;}
+  .paper{box-shadow:none;padding:1.5cm 2cm;max-width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo-box"><span>PJe</span><small>Simulado</small></div>
+  <h1>Tribunal do Júri Simulado<br><span style="font-weight:400;font-size:.67rem;">1ª Vara · Comarca Universitária · UNIFIC/CE</span></h1>
+  <div class="sim-badge">⚖ SIM.</div>
+</div>
+
+<div id="app">
+
+  <!-- AUTOS -->
+  <div id="screen-autos" class="screen active">
+    <div class="proc-banner">
+      <div class="pnum">00000-01.2026.8.06.0171 – SIMULADO</div>
+      <div class="psub">Ação Penal · Homicídio Qualificado · Art. 121 §2º I, III e IV CP</div>
+      <div class="psub">🏛 UNIFIC · Tauá/CE · 1º Semestre Direito 2026</div>
+    </div>
+    <div class="doc-list">
+      <button class="doc-card capa" data-doc="capa" data-title="Capa do Processo">
+        <div class="di">📋</div>
+        <div class="dinfo"><div class="dtitle">Capa do Processo</div><div class="dsub">Dados Gerais · Partes</div><div class="ddate">21/04/2026 – 15:49</div></div>
+        <div class="dfl">Fl. 1 ›</div>
+      </button>
+      <button class="doc-card sentenca" data-doc="sentenca" data-title="Sentença de Pronúncia">
+        <div class="di">⚖️</div>
+        <div class="dinfo"><div class="dtitle">Sentença de Pronúncia</div><div class="dsub">Art. 413 do CPP</div><div class="ddate">10/04/2026</div></div>
+        <div class="dfl">Fl. 3 ›</div>
+      </button>
+      <button class="doc-card intimacao" data-doc="intimacao" data-title="Mandado de Intimação nº 001/2026">
+        <div class="di">📬</div>
+        <div class="dinfo"><div class="dtitle">Mandado de Intimação</div><div class="dsub">Mandado nº 001/2026 · Art. 422 CPP</div><div class="ddate">10/04/2026</div></div>
+        <div class="dfl">Fl. 8 ›</div>
+      </button>
+      <button class="doc-card certidao" data-doc="certidao" data-title="Certidão de Intimação">
+        <div class="di">📜</div>
+        <div class="dinfo"><div class="dtitle">Certidão de Intimação</div><div class="dsub">Oficial de Justiça</div><div class="ddate">__/04/2026</div></div>
+        <div class="dfl">Fl. 10 ›</div>
+      </button>
+      <button class="doc-card" style="border-left-color:#e53935" data-doc="rol-acusacao" data-title="Rol de Testemunhas – Acusação">
+        <div class="di">🎤</div>
+        <div class="dinfo"><div class="dtitle">Rol de Testemunhas – Acusação</div><div class="dsub">Requerimento · João Victor Marcelino</div><div class="ddate">Art. 422 CPP</div></div>
+        <div class="dfl">Fl. 11 ›</div>
+      </button>
+      <button class="doc-card" style="border-left-color:#43a047" data-doc="rol-defesa" data-title="Rol de Testemunhas – Defesa">
+        <div class="di">🎤</div>
+        <div class="dinfo"><div class="dtitle">Rol de Testemunhas – Defesa</div><div class="dsub">Requerimento · Naiara Araújo de Macedo</div><div class="ddate">22/04/2026</div></div>
+        <div class="dfl">Fl. 13 ›</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- DOCVIEW -->
+  <div id="screen-docview" class="screen">
+    <div class="docview-bar">
+      <button class="back-btn" id="btn-back">← Voltar</button>
+      <div class="dv-title" id="dv-title">Documento</div>
+      <button class="print-btn" id="btn-print">🖨</button>
+    </div>
+    <div class="paper-wrap">
+
+      <div id="doc-capa" class="paper" style="display:none">
+        <div class="trib-logo">🏛</div>
+        <div class="trib-header">ESTADO DO CEARÁ<br>PODER JUDICIÁRIO<br>COMARCA UNIVERSITÁRIA – 2ª SIMULAÇÃO ACADÊMICA<br>TRIBUNAL DO JÚRI SIMULADO – 1ª VARA</div>
+        <div class="doc-h">Processo n<sup>o</sup><br>00000-01.2026.8.06.0171 – SIMULADO</div>
+        <p class="ni" style="margin-bottom:16px"><strong>Data - Hora:</strong> 21/04/2026 – 15:49</p>
+        <table class="ptable">
+          <tr><th colspan="2">Dados Gerais do Processo</th></tr>
+          <tr><td><strong>Número Único</strong></td><td>00000-01.2026.8.06.0171 – SIMULADO</td></tr>
+          <tr><td><strong>Tipo de Ação</strong></td><td>AÇÃO PENAL – TRIBUNAL DO JÚRI (SIMULAÇÃO)</td></tr>
+          <tr><td><strong>Classe</strong></td><td>Crimes contra a Vida – Homicídio Qualificado</td></tr>
+          <tr><td><strong>Autuação</strong></td><td>Simulada para fins acadêmicos</td></tr>
+          <tr><td><strong>Volumes</strong></td><td>1</td></tr>
+          <tr><td><strong>Segredo de Justiça</strong></td><td>Não</td></tr>
+          <tr><td><strong>Órgão Julgador</strong></td><td>Júri Acadêmico – Direito 1º sem. – UNIFIC</td></tr>
+        </table>
+        <table class="ptable">
+          <tr><th colspan="2">Assunto</th></tr>
+          <tr><td colspan="2">Direito Penal &gt; Crimes contra a Vida &gt; <strong>Homicídio Qualificado</strong></td></tr>
+        </table>
+        <table class="ptable">
+          <tr><th colspan="2">Partes</th></tr>
+          <tr><td><strong>Acusação</strong></td><td>Ministério Público Acadêmico</td></tr>
+          <tr><td><strong>Vítima</strong></td><td>Roger Whetmore</td></tr>
+          <tr><td><strong>Réus</strong></td><td>Havylla Vieira · Marcos Abreu · Kennedy Gomes · Luan Teixeira</td></tr>
+          <tr><td><strong>Defensores</strong></td><td>Advogados Acadêmicos (alunos designados)</td></tr>
+        </table>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 1</div>
+      </div>
+
+      <div id="doc-sentenca" class="paper" style="display:none">
+        <div class="trib-logo">⚖️</div>
+        <div class="trib-header">ESTADO DO CEARÁ<br>PODER JUDICIÁRIO<br>COMARCA UNIVERSITÁRIA – SIMULAÇÃO ACADÊMICA<br>TRIBUNAL DO JÚRI SIMULADO – 1ª VARA</div>
+        <div class="doc-h">SENTENÇA</div>
+        <div class="proc-info" style="margin-bottom:14px">
+          <p class="ni"><strong>Processo nº:</strong> 00000-01.2026.8.06.0171 – SIMULADO</p>
+          <p class="ni"><strong>Classe:</strong> Ação Penal - Procedimento do Júri</p>
+          <p class="ni"><strong>Assunto:</strong> Direito Penal &gt; Crimes contra a Vida &gt; Homicídio Qualificado</p>
+          <p class="ni"><strong>Autor:</strong> Ministério Público do Estado do Ceará</p>
+          <p class="ni"><strong>Réus:</strong> Luan Teixeira, Havylla Vieira, Kennedy Gomes e Marcos Abreu</p>
+        </div>
+        <p class="sec">1. RELATÓRIO</p>
+        <p>O MINISTÉRIO PÚBLICO DO ESTADO DO CEARÁ ofereceu denúncia em face de LUAN TEIXEIRA, HAVYLLA VIEIRA, KENNEDY GOMES E MARCOS ABREU, todos devidamente qualificados nos autos, imputando-lhes a prática do crime previsto no artigo 121, §2º, incisos I, III e IV, do Código Penal.</p>
+        <p>Narra a denúncia que, no dia 15 de maio de 2025, no interior de uma caverna localizada no Serrote Quinamuiú, município de Tauá/CE, os denunciados, de forma livre e consciente, em concurso e unidade de desígnios, mataram Roger Whetmore, utilizando-se de meio cruel e recurso que dificultou a defesa da vítima, motivados por razão torpe.</p>
+        <p>Consta dos autos que os cinco espeleólogos ficaram presos na caverna após desmoronamento que bloqueou a saída. No vigésimo dia de confinamento, estabeleceram um pacto para que um deles fosse sacrificado mediante sorteio, servindo de alimento aos demais. A vítima, que inicialmente propôs o acordo, dele desistiu momentos antes do sorteio, mas foi compelida a participar, tendo os dados sido lançados em seu nome por um dos denunciados. Perdendo no sorteio, foi morta pelos quatro acusados.</p>
+        <p>A denúncia foi recebida em 10 de agosto de 2025. Os réus foram citados e apresentaram resposta à acusação através de seus defensores.</p>
+        <p>O Ministério Público requereu a pronúncia dos réus nos termos da denúncia. A defesa pugnou pela impronúncia.</p>
+        <p>É o relatório. DECIDO.</p>
+        <p class="sec">II – FUNDAMENTAÇÃO</p>
+        <p>Os acusados foram validamente citados e tiveram oportunidade de defesa assegurada. Não vislumbro nulidade dos atos processuais praticados.</p>
+        <p>Ao fim desta etapa processual, o magistrado tem quatro opções: <strong>(i)</strong> impronunciar o réu (art. 414, CPP); <strong>(ii)</strong> pronunciar o acusado (art. 413, CPP); <strong>(iii)</strong> absolver sumariamente o réu (art. 415, CPP); <strong>(iv)</strong> desclassificar a imputação (art. 419, CPP).</p>
+        <p class="sec">II.1. Da Materialidade</p>
+        <p>A materialidade do crime encontra-se devidamente comprovada através do Auto de Prisão em Flagrante, Laudo de Exame de Corpo de Delito – Necropsia, que atesta como causa mortis "ferimentos múltiplos com instrumento contundente e perfurante", bem como pela prova testemunhal colhida em juízo.</p>
+        <p class="sec">II.2. Dos Indícios de Autoria</p>
+        <p>Os indícios de autoria são suficientes para submeter os réus a julgamento. Todos os acusados confessaram a prática do ato que resultou na morte de Roger Whetmore, divergindo apenas quanto ao elemento subjetivo e às circunstâncias excludentes de ilicitude ou culpabilidade.</p>
+        <p class="sec">II.3. Das Qualificadoras</p>
+        <p><strong>Motivo torpe (art. 121, §2º, I):</strong> Há elementos indicando que os réus agiram visando a própria sobrevivência em detrimento da vida alheia. Tal valoração compete aos jurados.</p>
+        <p><strong>Meio cruel (art. 121, §2º, III):</strong> Existem indícios de que a vítima teve consciência de seu destino iminente, tendo implorado pela vida após o resultado do sorteio. A análise compete ao Tribunal do Júri.</p>
+        <p><strong>Recurso que dificultou a defesa (art. 121, §2º, IV):</strong> Os elementos probatórios indicam que a vítima estava em inferioridade numérica (quatro contra um) em ambiente confinado.</p>
+        <p class="sec">3. DISPOSITIVO</p>
+        <p>Frente ao exposto, forte no artigo 413 do CPP, <strong>PRONUNCIO</strong> os réus <strong>LUAN TEIXEIRA, HAVYLLA VIEIRA, KENNEDY GOMES e MARCOS ABREU</strong>, como incursos nas sanções do artigo 121, §2º, incisos I, III e IV, do Código Penal, submetendo-os a julgamento pelo Tribunal do Júri.</p>
+        <p>Os réus poderão aguardar o julgamento em liberdade, mantidas as medidas cautelares anteriormente impostas.</p>
+        <p>Preclusa esta decisão, intimem-se as partes para os fins do artigo 422 do CPP.</p>
+        <p class="ni" style="margin-top:12px"><strong>P.R.I.C.</strong></p>
+        <p class="ni">Tauá/CE, 10/04/2026.</p>
+        <div class="assinatura">
+          <div class="linha"></div>
+          <p>PROF. DAWID GUILHERME MARTINS ALVES</p>
+          <small>Juiz de Direito do Tribunal do Júri Simulado – 1ª Vara</small>
+        </div>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 3</div>
+      </div>
+
+      <div id="doc-intimacao" class="paper" style="display:none">
+        <div class="trib-logo">📬</div>
+        <div class="trib-header">PODER JUDICIÁRIO<br>TRIBUNAL DO JÚRI SIMULADO – 1ª VARA<br>COMARCA UNIVERSITÁRIA – SIMULAÇÃO ACADÊMICA</div>
+        <div class="doc-h">MANDADO DE INTIMAÇÃO</div>
+        <div class="proc-info" style="margin-bottom:14px">
+          <p class="ni"><strong>PROCESSO N.º:</strong> 00000-01.2026.8.06.0171 – SIMULADO 2</p>
+          <p class="ni"><strong>CLASSE:</strong> Ação Penal - Procedimento do Júri</p>
+          <p class="ni"><strong>ASSUNTO:</strong> Direito Penal &gt; Crimes contra a Vida &gt; Homicídio Qualificado</p>
+          <p class="ni"><strong>RÉUS:</strong> Havylla · Marcos · Kennedy · Luan</p>
+          <p class="ni"><strong>MANDADO N.º:</strong> 001/2026</p>
+        </div>
+        <p>O <strong>PROF. DAWID GUILHERME MARTINS ALVES</strong>, Juiz de Direito do Tribunal do Júri Simulado – 1ª Vara da Comarca Universitária – Simulação Acadêmica do Estado do Ceará, no uso de suas atribuições legais, <strong>MANDA</strong> o(a) Oficial(a) de Justiça (Secretário), a quem este for distribuído, que proceda à <strong>INTIMAÇÃO</strong> de:</p>
+        <p class="sec">1. REPRESENTANTES DO MINISTÉRIO PÚBLICO</p>
+        <p>Para que, no prazo de 5 (cinco) dias, apresente o rol de testemunhas que irão depor em plenário, até o máximo de 4 (quatro), e junte os documentos e requeira as diligências que entender pertinentes, nos termos do art. 422 do Código de Processo Penal.</p>
+        <p class="sec">2. ADVOGADOS DE DEFESA</p>
+        <p>Para que, no prazo de 5 (cinco) dias, apresentem o rol de testemunhas que irão depor em plenário, até o máximo de 4 (quatro), e juntem os documentos e requeiram as diligências que entenderem pertinentes, nos termos do art. 422 do Código de Processo Penal.</p>
+        <p><strong>ADVERTÊNCIA:</strong> O não cumprimento do prazo legal implicará na preclusão do direito de praticar os atos indicados.</p>
+        <p class="ni" style="margin-top:14px">Tauá/CE, 10 de abril de 2026.</p>
+        <div class="assinatura">
+          <div class="linha"></div>
+          <p>PROF. DAWID GUILHERME MARTINS ALVES</p>
+          <small>Juiz de Direito do Tribunal do Júri Simulado – 1ª Vara</small>
+        </div>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 8</div>
+      </div>
+
+      <div id="doc-certidao" class="paper" style="display:none">
+        <div class="trib-logo">📜</div>
+        <div class="trib-header">PODER JUDICIÁRIO<br>TRIBUNAL DO JÚRI SIMULADO – 1ª VARA<br>COMARCA UNIVERSITÁRIA – SIMULAÇÃO ACADÊMICA</div>
+        <div class="doc-h">CERTIDÃO</div>
+        <div class="proc-info" style="margin-bottom:14px">
+          <p class="ni"><strong>Processo N.º:</strong> 00000-01.2026.8.06.0171 – SIMULADO</p>
+          <p class="ni"><strong>Referente ao Mandado N.º:</strong> 001/2026</p>
+        </div>
+        <p>Certifico e dou fé que, em <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> de <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> de <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, às <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, nesta Comarca, em cumprimento ao mandado 001/2026, procedi à intimação dos alunos representantes do Ministério Público, assistentes de acusação e dos alunos Advogados de Defesa, pessoalmente.</p>
+        <p class="ni" style="margin-top:20px">Tauá/CE, <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> de <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> de <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.</p>
+        <div class="assinatura" style="margin-top:52px">
+          <div class="linha"></div>
+          <p>Assinatura do Oficial de Justiça</p>
+          <small>Secretário(a): <span class="campo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></small>
+        </div>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 10</div>
+      </div>
+
+      <div id="doc-rol-acusacao" class="paper" style="display:none">
+        <div class="trib-logo">🎤</div>
+        <div class="trib-header">
+          CENTRO DE ENSINO SUPERIOR BRASILEIRO LTDA<br>
+          FACULDADES INTEGRADAS DO CEARÁ – UNIFIC TAUÁ<br>
+          Portaria nº 436, de 23 de junho de 2025 | DOU de 24 de junho de 2025
+        </div>
+        <div class="doc-h">REQUERIMENTO DE APRESENTAÇÃO DE TESTEMUNHAS</div>
+        <div class="proc-info" style="margin-bottom:14px">
+          <p class="ni"><strong>Processo N.º:</strong> 00000-01.2026.8.06.0171 – SIMULADO</p>
+          <p class="ni"><strong>Grupo:</strong> Acusação – Ministério Público Acadêmico</p>
+        </div>
+        <p>Eu, <strong>João Victor Marcelino Oliveira Lima</strong>, na qualidade de líder do grupo, venho por meio deste apresentar formalmente a relação de testemunhas que serão utilizadas no júri simulado referente ao caso dos exploradores de caverna.</p>
+        <p class="ni" style="margin:14px 0 6px"><strong>Juiz do Júri Simulado:</strong> Dawid Guilherme Martins Alves</p>
+        <p class="sec">ROL DE TESTEMUNHAS</p>
+        <table class="ptable" style="margin-top:10px">
+          <tr><th>#</th><th>Nome</th><th>Especialidade</th></tr>
+          <tr><td style="text-align:center">1</td><td>Yanna Gabriela Noronha</td><td>Médica Endócrina</td></tr>
+          <tr><td style="text-align:center">2</td><td>Guilherme Vital de Oliveira</td><td>Profissional Especialista em Resgate</td></tr>
+          <tr><td style="text-align:center">3</td><td>Nayane Gomes Rodrigues</td><td>Bióloga</td></tr>
+          <tr><td style="text-align:center">4</td><td>Letícia Alves dos Santos</td><td>Geóloga</td></tr>
+        </table>
+        <p style="margin-top:14px">Declaro que as testemunhas acima relacionadas estão devidamente selecionadas para contribuir com seus conhecimentos técnicos e científicos no decorrer do julgamento.</p>
+        <p class="ni">Termos em que, pede deferimento.</p>
+        <div class="assinatura" style="margin-top:44px">
+          <div class="linha"></div>
+          <p>João Victor Marcelino Oliveira Lima</p>
+          <small>Líder do Grupo – Ministério Público Acadêmico</small>
+        </div>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 11</div>
+      </div>
+
+      <div id="doc-rol-defesa" class="paper" style="display:none">
+        <div class="trib-logo">🎤</div>
+        <div class="trib-header">
+          CENTRO DE ENSINO SUPERIOR BRASILEIRO LTDA<br>
+          FACULDADES INTEGRADAS DO CEARÁ – UNIFIC TAUÁ<br>
+          Portaria nº 436, de 23 de junho de 2025 | DOU de 24 de junho de 2025
+        </div>
+        <p class="ni" style="text-align:right;margin-bottom:18px;font-size:10pt">Tauá/CE, 22 de abril de 2026.</p>
+        <p class="ni"><strong>EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO DO TRIBUNAL DO JÚRI</strong></p>
+        <p class="ni" style="margin:10px 0"><strong>Proc. nº</strong> 00000-01.2026.8.06.0171 – SIMULADO</p>
+        <p>A parte que esta subscreve vem, respeitosamente, à presença de Vossa Excelência, apresentar o rol de testemunhas que serão ouvidas durante a realização do júri simulado, com a finalidade de contribuir para o esclarecimento dos fatos em discussão e auxiliar na formação do convencimento dos jurados.</p>
+        <p>As testemunhas arroladas possuem conhecimento direto e/ou indireto sobre os acontecimentos que envolvem o caso, sendo capazes de oferecer informações relevantes acerca das circunstâncias, da conduta das partes envolvidas e dos elementos que permeiam a situação fática apresentada.</p>
+        <p>Outrossim, em arremate, com amparo no art. 455, § 5º, do Novo Código de Processo Civil, o Autor pede que as referidas testemunhas sejam intimadas a comparecer ao Júri em comento. (NCPC, art. 455, § 1º)</p>
+        <p class="sec">ROL TESTEMUNHAL (NCPC, art. 450)</p>
+        <table class="ptable" style="margin-top:10px">
+          <tr><th>#</th><th>Nome</th><th>Qualificação</th><th>Domicílio</th></tr>
+          <tr><td>1</td><td>José Gabriel Alves de Abreu</td><td>Médico, solteiro, 18 anos, CPF 333.444.555-00</td><td>Tauá/CE</td></tr>
+          <tr><td>2</td><td>Hugo Rafael Lacerda Oliveira</td><td>Psicólogo e Doutor em Neurociência, solteiro, 18 anos, CPF 333.444.555-66</td><td>Tauá/CE</td></tr>
+          <tr><td>3</td><td>Marcos Antônio Alves Pedroza</td><td>Trabalhador da equipe de resgate, 18 anos, CPF 333.444.555-66</td><td>Distrito de Santa Teresa, Tauá/CE</td></tr>
+          <tr><td>4</td><td>Felipe Guedes de Oliveira</td><td>Antropólogo, 18 anos, CPF 333.444.555-66</td><td>Tauá/CE</td></tr>
+        </table>
+        <p class="ni" style="margin-top:16px">Respeitosamente, pede deferimento.</p>
+        <div class="assinatura" style="margin-top:44px">
+          <div class="linha"></div>
+          <p>Naiara Araújo de Macedo</p>
+          <small>Advogada de Defesa</small>
+        </div>
+        <div class="rodape">Simulação Acadêmica – UNIFIC – Direito 1º Semestre – 2026 | Fl. 13</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CASO -->
+  <div id="screen-caso" class="screen">
+    <div style="padding:10px">
+      <div class="caso-card">
+        <h3>📖 O Caso – Os Exploradores de Caverna</h3>
+        <p>Cinco espeleólogos ficaram presos em uma caverna no <strong>Serrote Quinamuiú, Tauá/CE</strong>, após um desmoronamento bloquear a saída. Após 20 dias de confinamento, sem alimentos, estabeleceram um pacto para que um deles fosse sacrificado por sorteio como alimento aos demais.</p>
+        <p>A vítima, <strong>Roger Whetmore</strong>, que havia proposto o acordo, dele desistiu momentos antes — mas foi compelida a participar. Os dados foram lançados em seu nome e, perdendo o sorteio, foi morta pelos quatro réus.</p>
+        <div class="art-box">"Art. 121, §2º CP: I – motivo torpe; III – meio cruel; IV – recurso que dificulte a defesa do ofendido."</div>
+      </div>
+      <div class="caso-card">
+        <h3>📌 Dados do Processo</h3>
+        <div class="info-grid">
+          <div class="info-item"><span class="lbl">Número</span><span class="val">00000-01.2026.8.06.0171</span></div>
+          <div class="info-item"><span class="lbl">Vara</span><span class="val">1ª Vara – Júri Simulado</span></div>
+          <div class="info-item"><span class="lbl">Comarca</span><span class="val">Tauá/CE – UNIFIC</span></div>
+          <div class="info-item"><span class="lbl">Crime</span><span class="val">Homicídio Qualificado</span></div>
+          <div class="info-item"><span class="lbl">Fase</span><span class="val">Plenário – Pós Pronúncia</span></div>
+          <div class="info-item"><span class="lbl">Pronúncia</span><span class="val">10/04/2026</span></div>
+          <div class="info-item"><span class="lbl">Fato</span><span class="val">15/05/2025</span></div>
+          <div class="info-item"><span class="lbl">Vítima</span><span class="val">Roger Whetmore</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTES -->
+  <div id="screen-partes" class="screen">
+    <div style="padding:10px">
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--blue)" data-target="pg-juiz">
+          <div class="hl">🧑‍⚖️ Juiz-Presidente</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-juiz">
+          <div class="person"><div class="av" style="background:var(--blue)">DG</div><div><span class="pname">Prof. Dawid Guilherme Martins Alves</span><span class="prole">Juiz de Direito – Júri Simulado</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:#37474f" data-target="pg-sec">
+          <div class="hl">📋 Secretário do Júri</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-sec">
+          <div class="person"><div class="av" style="background:#546e7a">WO</div><div><span class="pname">Wilma Oliveira</span><span class="prole">Secretária</span></div></div>
+          <div class="person"><div class="av" style="background:#546e7a">JV</div><div><span class="pname">João Victor</span><span class="prole">Secretário</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--red)" data-target="pg-mp">
+          <div class="hl">⚖️ Acusação – Promotoria</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-mp">
+          <div class="person"><div class="av" style="background:var(--red)">JV</div><div><span class="pname">João Victor Marcelino</span><span class="prole">Promotor Líder ★</span></div></div>
+          <div class="person"><div class="av" style="background:var(--red)">VS</div><div><span class="pname">Vitória Sampaio</span><span class="prole">Promotora</span></div></div>
+          <div class="person"><div class="av" style="background:var(--red)">VS</div><div><span class="pname">Vinnicios Sousa</span><span class="prole">Promotor</span></div></div>
+          <div class="person"><div class="av" style="background:var(--red)">GN</div><div><span class="pname">Gustavo Noronha</span><span class="prole">Promotor</span></div></div>
+          <div class="person"><div class="av" style="background:var(--red)">ML</div><div><span class="pname">Mateus Lima</span><span class="prole">Promotor</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--green)" data-target="pg-def">
+          <div class="hl">🛡️ Defesa</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-def">
+          <div class="person"><div class="av" style="background:var(--green)">NM</div><div><span class="pname">Naiara Macedo</span><span class="prole">Advogada Líder ★</span></div></div>
+          <div class="person"><div class="av" style="background:var(--green)">BC</div><div><span class="pname">Bruno Cardoso</span><span class="prole">Advogado</span></div></div>
+          <div class="person"><div class="av" style="background:var(--green)">AR</div><div><span class="pname">Alisson Rodrigues</span><span class="prole">Advogado</span></div></div>
+          <div class="person"><div class="av" style="background:var(--green)">DA</div><div><span class="pname">Davi Araújo</span><span class="prole">Advogado</span></div></div>
+          <div class="person"><div class="av" style="background:var(--green)">AM</div><div><span class="pname">Almir Malaquias</span><span class="prole">Advogado</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--purple)" data-target="pg-reus">
+          <div class="hl">🧑‍🤝‍🧑 Réus (Exploradores)</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-reus">
+          <div class="person"><div class="av" style="background:var(--purple)">HV</div><div><span class="pname">Havylla Vieira</span><span class="prole">Ré</span></div></div>
+          <div class="person"><div class="av" style="background:var(--purple)">MA</div><div><span class="pname">Marcos Abreu</span><span class="prole">Réu</span></div></div>
+          <div class="person"><div class="av" style="background:var(--purple)">KG</div><div><span class="pname">Kennedy Gomes</span><span class="prole">Réu</span></div></div>
+          <div class="person"><div class="av" style="background:var(--purple)">LT</div><div><span class="pname">Luan Teixeira</span><span class="prole">Réu</span></div></div>
+          <div class="person"><div class="av" style="background:#9c27b0">5º</div><div><span class="pname" style="color:#999">5º Réu</span><span class="prole">A confirmar</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--orange)" data-target="pg-tac">
+          <div class="hl">🎤 Testemunhas de Acusação</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-tac">
+          <div class="person"><div class="av" style="background:var(--orange)">GO</div><div><span class="pname">Guilherme Oliveira</span></div></div>
+          <div class="person"><div class="av" style="background:var(--orange)">NR</div><div><span class="pname">Nayane Rodrigues</span></div></div>
+          <div class="person"><div class="av" style="background:var(--orange)">LS</div><div><span class="pname">Letícia Santos</span></div></div>
+          <div class="person"><div class="av" style="background:var(--orange)">YN</div><div><span class="pname">Yanna Noronha</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:var(--teal)" data-target="pg-tdef">
+          <div class="hl">🎤 Testemunhas de Defesa</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-tdef">
+          <div class="person"><div class="av" style="background:var(--teal)">MP</div><div><span class="pname">Marcos Antônio Pedroza</span></div></div>
+          <div class="person"><div class="av" style="background:var(--teal)">FO</div><div><span class="pname">Felipe Oliveira</span></div></div>
+          <div class="person"><div class="av" style="background:var(--teal)">HO</div><div><span class="pname">Hugo Oliveira</span></div></div>
+          <div class="person"><div class="av" style="background:var(--teal)">JG</div><div><span class="pname">José Gabriel Abreu</span></div></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <button class="pcard-hdr" style="background:#283593" data-target="pg-jur">
+          <div class="hl">👨‍⚖️ Jurados</div><span class="chev">▼</span>
+        </button>
+        <div class="pcard-body open" id="pg-jur">
+          <div class="person"><div class="av" style="background:#283593">FB</div><div><span class="pname">Francisco Bonfim</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">PS</div><div><span class="pname">Pedro Silva</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">AS</div><div><span class="pname">Antônia Sena</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">KM</div><div><span class="pname">Kilva Marinha</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">GP</div><div><span class="pname">Graziele Pereira</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">AA</div><div><span class="pname">Antônio Alves</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">NP</div><div><span class="pname">Nicole Paulo</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">AP</div><div><span class="pname">Ana Paula Sousa</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">ES</div><div><span class="pname">Emanuela Sousa</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">HC</div><div><span class="pname">Hermilla Cattoni</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">JE</div><div><span class="pname">José Elias Amorim</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">AC</div><div><span class="pname">Ana Carolina Costa</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">JD</div><div><span class="pname">Johab Dantas</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">AB</div><div><span class="pname">Ana Beatriz Moraes</span></div></div>
+          <div class="person"><div class="av" style="background:#283593">SF</div><div><span class="pname">Samyla Feitosa</span></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div id="bottom-nav">
+  <button class="nav-btn active" id="nav-autos" data-screen="autos">
+    <span class="ni">📄</span>Autos
+  </button>
+  <button class="nav-btn" id="nav-caso" data-screen="caso">
+    <span class="ni">📖</span>Caso
+  </button>
+  <button class="nav-btn" id="nav-partes" data-screen="partes">
+    <span class="ni">👥</span>Partes
+  </button>
+</div>
+
+<script>
+// ── Nav ──
+document.querySelectorAll('#bottom-nav .nav-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var sc = this.getAttribute('data-screen');
+    showScreen(sc);
+  });
+});
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('#bottom-nav .nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('screen-' + name).classList.add('active');
+  var nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Doc cards ──
+document.querySelectorAll('.doc-card').forEach(function(card) {
+  card.addEventListener('click', function() {
+    var docId = this.getAttribute('data-doc');
+    var title = this.getAttribute('data-title');
+    openDoc(docId, title);
+  });
+});
+
+function openDoc(id, title) {
+  ['capa','sentenca','intimacao','certidao','rol-acusacao','rol-defesa'].forEach(function(d){
+    document.getElementById('doc-' + d).style.display = 'none';
+  });
+  document.getElementById('doc-' + id).style.display = 'block';
+  document.getElementById('dv-title').textContent = title;
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('#bottom-nav .nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('screen-docview').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Back button ──
+document.getElementById('btn-back').addEventListener('click', function() {
+  showScreen('autos');
+});
+
+// ── Print ──
+document.getElementById('btn-print').addEventListener('click', function() {
+  window.print();
+});
+
+// ── Accordion ──
+document.querySelectorAll('.pcard-hdr').forEach(function(hdr) {
+  hdr.addEventListener('click', function() {
+    var targetId = this.getAttribute('data-target');
+    var body = document.getElementById(targetId);
+    var chev = this.querySelector('.chev');
+    var isOpen = body.classList.contains('open');
+    body.classList.toggle('open');
+    chev.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+  });
+});
+</script>
+</body>
+</html>
